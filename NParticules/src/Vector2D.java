@@ -8,9 +8,9 @@ public class Vector2D {
 		this.y = 0;
 	}
 	
-	public Vector2D(boolean random) {
-		this.x = Math.random() * Display.SIZE;
-		this.y = Math.random() * Display.SIZE;
+	public Vector2D(boolean random, int max) {
+		this.x = Math.random() * max;
+		this.y = Math.random() * max;
 	}
 	
 	public Vector2D(double x, double y) {
@@ -61,6 +61,10 @@ public class Vector2D {
 		return new Vector2D(this.x * k, this.y() * k);
 	}
 	
+	public Vector2D dividedBy(double k) {
+		return new Vector2D(this.x / k, this.y() / k);
+	}
+	
 	public void setX(double x) {
 		this.x = x;
 	}
@@ -69,6 +73,11 @@ public class Vector2D {
 		this.y = y;
 	}
 	
+	public double distance(Vector2D v) {
+		return this.minus(v).norm();
+	}
+	
+	@Override
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
@@ -76,5 +85,10 @@ public class Vector2D {
 			return false;
 		Vector2D other = (Vector2D) o;
 		return x == other.x && y == other.y;
+	}
+	
+	@Override
+	public Vector2D clone() {
+		return new Vector2D(x, y);
 	}
 }

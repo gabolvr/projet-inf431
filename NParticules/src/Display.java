@@ -1,4 +1,6 @@
 import java.awt.*;
+import java.util.concurrent.LinkedBlockingQueue;
+
 import javax.swing.*;
 
 public class Display extends Thread {
@@ -6,10 +8,13 @@ public class Display extends Thread {
 	private JFrame mainFrame;
 	private JPanel mainPanel;
 	private SystemJPanel systemPanel;
+	private JLabel timeCounter;
+	private LinkedBlockingQueue<SystemState> future_states;
+	public final static int SIZE = 800;
+	public final static int DISPLAY_TIME = 1;
 	
-	public final static int SIZE = 500;
-	
-	public Display() {
+	public Display(LinkedBlockingQueue<SystemState> future_states) {
+		this.future_states = future_states;
 		initializePanel();
 		start();
 	}
@@ -23,6 +28,13 @@ public class Display extends Thread {
 		systemPanel.setBackground(Color.WHITE);
 		mainFrame.getContentPane().add(mainPanel);
 		mainFrame.add(systemPanel, BorderLayout.CENTER);
+		
+		timeCounter = new JLabel("time = ");
+		timeCounter.setOpaque(true);
+		timeCounter.setBackground(Color.WHITE);
+		mainFrame.add(timeCounter, BorderLayout.PAGE_END);
+		timeCounter.setHorizontalAlignment(SwingConstants.CENTER);
+		
 		mainFrame.setVisible(true);
 	}
 	
@@ -30,19 +42,20 @@ public class Display extends Thread {
 	public void run() {
 		try {
 			while(true) {
-
-				Thread.sleep(Particle.DELTAT);
-				displayParticles();
+				SystemState state = future_states.take();
+				displayParticles(state);
+				timeCounter.setText("time = " + state.time);
+				Thread.sleep(DISPLAY_TIME);
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	private void displayParticles() {
+	private synchronized void displayParticles(SystemState state) {
 		systemPanel.clearPoints();
-		systemPanel.addPoint(new Particle().point());
-		systemPanel.addPoint(new Particle().point());
+		for(Point p : state.points)
+			systemPanel.addPoint(p);
 		systemPanel.repaint();
 	}
 }

@@ -10,7 +10,6 @@ public class SystemJPanel extends JPanel {
 	
 	public void addPoint(Point p) {
 		points.add(p);
-		System.out.print(points.size());
 	}
 	
 	public void clearPoints() {
@@ -20,8 +19,9 @@ public class SystemJPanel extends JPanel {
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		for(Point p : points) {
-			drawPoint(p, g);
+		for (int i = 0; i < points.size(); i++) {
+			if (points.get(i) != null)
+				drawPoint(points.get(i), g);
 		}
 	}
 
