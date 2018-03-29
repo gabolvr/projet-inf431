@@ -61,7 +61,7 @@ public class Particle implements Runnable {
 		return velocity;
 	}
 	
-	private Vector2D getAceleration() {
+	private Vector2D getAcceleration() {
 		return totalForce().dividedBy(mass);
 	}
 	
@@ -71,7 +71,7 @@ public class Particle implements Runnable {
 	}
 	
 	public void calculateVelocity() {
-		new_velocity = velocity.plus(getAceleration().times(DELTAT));
+		new_velocity = velocity.plus(getAcceleration().times(DELTAT));
 	}
 	
 	// Methods update
