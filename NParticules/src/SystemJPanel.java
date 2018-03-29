@@ -4,18 +4,23 @@ import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
+// Panel to display the system of particles
+
 public class SystemJPanel extends JPanel {
 	
 	ArrayList<Point> points = new ArrayList<Point>();
 	
+	// Adds a point to the list
 	public void addPoint(Point p) {
 		points.add(p);
 	}
 	
+	// Remove all the points from the lsit
 	public void clearPoints() {
 		points.clear();
 	}
 	
+	// Display all the points of the list
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -24,7 +29,8 @@ public class SystemJPanel extends JPanel {
 				drawPoint(points.get(i), g);
 		}
 	}
-
+	
+	// Display one point
 	private void drawPoint(Point p, Graphics g) {
 		int r = 2;
 		int u = p.x - r;

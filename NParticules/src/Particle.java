@@ -1,7 +1,6 @@
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.concurrent.LinkedBlockingQueue;
 
 public class Particle implements Runnable {
 	
@@ -13,8 +12,7 @@ public class Particle implements Runnable {
 	private Vector2D velocity, new_velocity;
 	private double mass;
 	private double r = 10;
-	public LinkedList<Vector2D> forces;
-	
+	private LinkedList<Vector2D> forces;
 	private ArrayList<Particle> particles;
 	private ParticleSystem system;
 	
@@ -90,15 +88,11 @@ public class Particle implements Runnable {
 		updateVelocity();
 	}
 	
-	// Set the system
+	// Link the particle to the system it belongs
 	
-	public void setSystem(ArrayList<Particle> particles) {
-		this.particles = particles;
-	}
-	
-	public void setSystem(ParticleSystem system) {
+	public void setSystem(ParticleSystem system, ArrayList<Particle> particles) {
 		this.system = system;
-		this.particles = system.particles;
+		this.particles = particles;
 	}
 	
 	// FORCES
@@ -108,11 +102,11 @@ public class Particle implements Runnable {
 		double dist;
 		Vector2D force;
 		
+		// If it's the same particle
 		if(p == this)
 			return new Vector2D();
 					
-		// dist = (position.distance(p.getPosition()) < 1.0) ? 1.0 : position.distance(p.getPosition());
-		
+		// If the particle gets to close
 		if (position.distance(p.getPosition()) < r)
 			return new Vector2D();
 		
@@ -157,11 +151,12 @@ public class Particle implements Runnable {
 		return new Point((int) Math.round(position.x()), (int) Math.round(position.y()));
 	}
 	
-	private synchronized void waitForOthers() throws InterruptedException {
+	// Synchronization barrier so that all threads could calculate their new position and velocity before update them
+	private synchronized void waitForOthers() throws InterruptedException{
 		if (system.particlesToWait <= 0) {
-			system.particlesToWait = system.numParticles;
 			notifyAll();
 		}
+		// Wait while there are particles
 		while(system.particlesToWait > 0) {
 			wait();
 			return;
@@ -170,9 +165,17 @@ public class Particle implements Runnable {
 
 	@Override
 	public void run() {
+		// Calculates the new values
 		calculateForces();
 		calculatePosition();
 		calculateVelocity();
+		// Waits that all the others particles have done it
+		try {
+			waitForOthers();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		// Updates itself
 		updateParticle();
 	}
 }
